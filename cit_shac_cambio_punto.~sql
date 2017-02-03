@@ -1,0 +1,6 @@
+  --CAMBIO DE PUNTO EN EL CIT Y SHAC
+  Select *   From cbtd_hoja_ruta where cod_ruta=1 and fec_prgn='21/01/2017' AND COD_SUCU=12  for update;/*and cod_punt IN (103,21266)*/ AND NSE_PUNT_RADI IN (100) for update;
+  
+  Select * From cbtd_hoja_ruta where num_cmpb_atm_prin=107290--33754
+  
+  Select * From tv_cmpb_serv WHERE NUM_CMPB=107290 AND COD_SERI_CMPB='T12' FOR UPDATE

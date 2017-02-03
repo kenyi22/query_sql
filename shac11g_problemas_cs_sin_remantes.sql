@@ -1,0 +1,31 @@
+--SHAC. SHPG_INGR_REME_0002
+select * from dba_source
+where text like '%CS de Abastecimiento Sin Remanente%'
+;
+---------------
+SELECT DISTINCT b.num_cmpb_atm_prin,
+                b.cod_seri_atm_prin,
+                b.tip_docu_atm_prin,
+                a.cod_punt,
+                a.cod_sucu_htb
+--    INTO pn_num_cmpb_abas, pv_ser_cmpb_abas, pv_tip_cmpb_abas
+  FROM ac_pedido a, ac_pedido_deta b
+ WHERE b.num_pedi = a.num_pedi
+    AND a.cod_punt = 35231
+   AND b.cod_seri_pedi = a.cod_seri_pedi
+   AND b.tip_docu_pedi = a.tip_docu_pedi      
+   AND a.tip_pedi = '4'
+   AND b.est_item_pedi IN (4, 6)
+   AND EXISTS (SELECT 1
+          FROM atm_detalle_hoja_ruta r
+         WHERE r.cod_etapa = '04'
+           AND r.cod_serv = '01'
+           AND r.num_pedi = a.num_pedi
+           AND r.cod_seri_pedi = a.cod_seri_pedi
+           AND r.tip_docu_pedi = a.tip_docu_pedi)      
+   AND a.cod_sucu_htb = 1
+      AND a.num_cmpb_rest IS NULL
+;
+   
+   Select * From ac_pedido where cod_punt=35231 for update---14348393
+   Select * From ac_pedido_deta where num_pedi=3156609

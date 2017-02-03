@@ -1,0 +1,67 @@
+--0. verificar servicio
+Select * From cstc_serv t where t.cod_equi=200037 order by t.fec_fina desc;
+--1. verificar hora de corte
+Select * from csmd_maqu_safe_deta t Where t.cod_maqu_safe In (200037);
+--cortes
+Select * from cstc_proc_hora_cort t Where t.cod_maqu_safe= 200037 Order By t.fec_fina_proc Desc;--recojo 16/12/2016 15:31:32 21/12/2016 11:54 :: 20/12/2016 0:30:00    21/12/2016 0:30:00
+Select * from cstc_proc_hora_cort t Where t.cod_maqu_safe= 100037 Order By t.fec_fina_proc Desc;--20/12/2016 11:38:34     21/12/2016 0:30:00
+Select * from cstc_proc_hora_cort t Where t.cod_maqu_safe= 4003 Order By t.fec_fina_proc Desc;--20/12/2016 15:23:46   21/12/2016 2:00:00
+Select * from cstc_proc_hora_cort t Where t.cod_maqu_safe= 7 Order By t.fec_fina_proc Desc;--20/12/2016 16:34:29   21/12/2016 0:30:00
+
+--2. transacciones pendientes de generar cs (ind_proc=0)
+Select *
+  From cstc_tran t
+Where t.cod_equi = 200037
+   And t.fec_fina >=
+       to_date('11/01/2017 11:30:00 ', 'dd/mm/yyyy hh24:mi:ss')--30/12/2016 13:04:15
+   And t.fec_fina < to_date('12/01/2017 00:30:00', 'dd/mm/yyyy hh24:mi:ss')
+   And t.ind_proc = 0
+   And t.mon_cont > 0;
+   
+Select *
+  From cstc_tran t
+Where t.cod_equi = 100037
+   And t.fec_fina >=
+       to_date('20/12/2016 11:38:34', 'dd/mm/yyyy hh24:mi:ss')
+   And t.ind_proc = 0
+   And t.mon_cont > 0
+   And t.fec_fina < to_date('21/12/2016 00:30:00', 'dd/mm/yyyy hh24:mi:ss');
+Select *
+  From cstc_tran t
+Where t.cod_equi = 3
+   And t.fec_fina >=
+       to_date('20/12/2016 15:23:46', 'dd/mm/yyyy hh24:mi:ss')
+   And t.ind_proc = 0
+   And t.mon_cont > 0
+   And t.fec_fina < to_date('21/12/2016 02:00:00', 'dd/mm/yyyy hh24:mi:ss');
+Select *
+  From cstc_tran t
+Where t.cod_equi = 7
+  And t.fec_fina >=
+       to_date('20/12/2016 16:34:29', 'dd/mm/yyyy hh24:mi:ss')
+   And t.ind_proc = 0
+   And t.mon_cont > 0
+   And t.fec_fina < to_date('21/12/2016 00:30:00', 'dd/mm/yyyy hh24:mi:ss');
+--4. obtener datos de la query anterior 
+100037 20/12/2016 22:50:47 21/12/2016 00:30:00 47069
+3      20/12/2016 21:19:47 21/12/2016 00:30:00 47085
+7      20/12/2016 21:35:43 21/12/2016 00:30:00 47090
+--5. ejecutar webservice URL: http://srvoas3.hermes.com.pe:8903/GestionarComprobanteVirtual/GestionarComprobanteProtTypePort
+tipoProceso
+
+0: corte
+1: recojo
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ges="http://hermes.com.pe/schema/csafe/GestionarComprobanteVirtual">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ges:generarCmpbCsafeRequestType>
+         <ges:codigoCompusafe>100037</ges:codigoCompusafe>
+         <ges:fechaInicial>20/12/2016 22:50:47</ges:fechaInicial>
+         <ges:fechaFinal>21/12/2016 00:30:00</ges:fechaFinal>
+         <ges:tipoProceso>0</ges:tipoProceso>
+         <ges:codigoServicio>47069</ges:codigoServicio>
+      </ges:generarCmpbCsafeRequestType>
+   </soapenv:Body>
+</soapenv:Envelope>
+

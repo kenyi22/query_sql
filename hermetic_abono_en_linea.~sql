@@ -1,0 +1,5 @@
+Select * From csmc_maqu_safe where cod_maqu_safe=200037 for update
+
+
+Select * from gemc_tabl_parm Where cod_grup_parm = 142;
+Select * from tg_tabl_tipo Where cod_grup_tipo = 669;

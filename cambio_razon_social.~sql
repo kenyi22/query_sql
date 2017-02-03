@@ -1,0 +1,146 @@
+declare
+  ln_razo_soci number(6) := null;
+  lv_usu_web   varchar2(30) := 'JANGULO';
+  ln_corp      number(3) := 75;
+  ln_auxi_rz   number(6);                    
+  ln_row       Number := 0;
+
+  Type reg_modu Is Record(
+    cod_razo_soci csmd_modu_clie.cod_razo_soci%Type,
+    usu_web       csmd_modu_clie.usu_web%Type,
+    cod_modu      csmd_modu_clie.cod_modu%Type,
+    cod_perf      csmd_modu_clie.cod_perf%Type,
+    usu_bd        csmd_modu_clie.usu_bd%Type,
+    pas_bd        csmd_modu_clie.pas_bd%Type,
+    cnx_bd        csmd_modu_clie.cnx_bd%Type,
+    usu_crea      csmd_modu_clie.usu_crea%Type,
+    fec_crea      csmd_modu_clie.fec_crea%Type,
+    usu_modi      csmd_modu_clie.usu_modi%Type,
+    fec_modi      csmd_modu_clie.fec_modi%Type,
+    ind_usua_gene csmd_modu_clie.ind_usua_gene%Type,
+    cod_clie      csmd_modu_clie.cod_clie%Type,
+    cod_sucu_htb  csmd_modu_clie.cod_sucu_htb%Type,
+    ind_acti      csmd_modu_clie.ind_acti%Type,
+    cod_corp      csmd_modu_clie.cod_corp%Type);
+    
+  Type tab_modu Is Table Of reg_modu Index By Binary_integer;
+  item_tab_modu tab_modu;
+  
+  cursor c1 is
+    Select * from csmd_modu_clie where usu_web = lv_usu_web;
+
+begin
+  For r1 in c1 loop
+    ln_row := ln_row + 1;
+    item_tab_modu(ln_row).cod_razo_soci := r1.cod_razo_soci;
+    item_tab_modu(ln_row).usu_web := r1.usu_web;
+    item_tab_modu(ln_row).cod_modu := r1.cod_modu;
+    item_tab_modu(ln_row).cod_perf := r1.cod_perf;
+    item_tab_modu(ln_row).usu_bd := r1.usu_bd;
+    item_tab_modu(ln_row).pas_bd := r1.pas_bd;
+    item_tab_modu(ln_row).cnx_bd := r1.cnx_bd;
+    item_tab_modu(ln_row).usu_crea := r1.usu_crea;
+    item_tab_modu(ln_row).fec_crea := r1.fec_crea;
+    item_tab_modu(ln_row).usu_modi := r1.usu_modi;
+    item_tab_modu(ln_row).fec_modi := r1.fec_modi;
+    item_tab_modu(ln_row).ind_usua_gene := r1.ind_usua_gene;
+    item_tab_modu(ln_row).cod_clie := r1.cod_clie;
+    item_tab_modu(ln_row).cod_sucu_htb := r1.cod_sucu_htb;
+    item_tab_modu(ln_row).ind_acti := r1.ind_acti;
+    item_tab_modu(ln_row).cod_corp := r1.cod_corp;
+  end loop;
+
+  select cod_razo_soci
+    into ln_auxi_rz
+    from csmc_usua_web
+   where usu_web = lv_usu_web;
+
+  IF ln_corp is not null and ln_auxi_rz = 1 then
+    update csmc_usua_web
+       set cod_punt = null, cod_corp = ln_corp
+     where usu_web = lv_usu_web;
+  
+    update csmd_modu_clie
+       set cod_corp = ln_corp
+     where usu_web = lv_usu_web;
+    dbms_output.put_line('Se actualizó ok la corporación');
+  ELSIF ln_corp is not null and ln_auxi_rz <> 1 then
+    delete from csmd_modu_clie where usu_web = lv_usu_web;
+  
+    update csmc_usua_web
+       set cod_razo_soci = 1, cod_punt = null, cod_corp = ln_corp
+     where usu_web = lv_usu_web;
+  
+    For ln_row In 1 .. item_tab_modu.count Loop
+      insert into csmd_modu_clie
+      values
+        (1,
+         item_tab_modu(ln_row).usu_web,
+         item_tab_modu(ln_row).cod_modu,
+         item_tab_modu(ln_row).cod_perf,
+         item_tab_modu(ln_row).usu_bd,
+         item_tab_modu(ln_row).pas_bd,
+         item_tab_modu(ln_row).cnx_bd,
+         item_tab_modu(ln_row).usu_crea,
+         item_tab_modu(ln_row).fec_crea,
+         item_tab_modu(ln_row).usu_modi,
+         item_tab_modu(ln_row).fec_modi,
+         item_tab_modu(ln_row).ind_usua_gene,
+         item_tab_modu(ln_row).cod_clie,
+         item_tab_modu(ln_row).cod_sucu_htb,
+         item_tab_modu(ln_row).ind_acti,
+         ln_corp);
+    end loop;
+    dbms_output.put_line('Se actualizó de razo social a corporación');
+  ELSE
+    delete from csmd_modu_clie where usu_web = lv_usu_web;
+  
+    update csmc_usua_web
+       set cod_razo_soci = ln_razo_soci, cod_punt = null, cod_corp = null
+     where usu_web = lv_usu_web;
+  
+    For ln_row In 1 .. item_tab_modu.count Loop
+      insert into csmd_modu_clie
+      values
+        (ln_razo_soci,
+         item_tab_modu(ln_row).usu_web,
+         item_tab_modu(ln_row).cod_modu,
+         item_tab_modu(ln_row).cod_perf,
+         item_tab_modu(ln_row).usu_bd,
+         item_tab_modu(ln_row).pas_bd,
+         item_tab_modu(ln_row).cnx_bd,
+         item_tab_modu(ln_row).usu_crea,
+         item_tab_modu(ln_row).fec_crea,
+         item_tab_modu(ln_row).usu_modi,
+         item_tab_modu(ln_row).fec_modi,
+         item_tab_modu(ln_row).ind_usua_gene,
+         item_tab_modu(ln_row).cod_clie,
+         item_tab_modu(ln_row).cod_sucu_htb,
+         item_tab_modu(ln_row).ind_acti,
+         null);
+    end loop;
+    dbms_output.put_line('Se actualizó ok la razón social');
+  END IF;
+  update general.camc_usua set punt = null where usu_web = lv_usu_web;
+  commit;
+  dbms_output.put_line('Se confirmó transacción commit');
+exception
+  when others then
+    rollback;
+    dbms_output.put_line('Error: ' || sqlerrm);
+    dbms_output.put_line('Se procedió a realizar rollbak');
+end;
+
+
+/*
+select * from general.camc_usua where usu_wEb='JANGULO';
+select * from CSMD_MODU_CLIE where usu_wEb='JANGULO';
+select * from CSMC_USUA_WEB where usu_wEb='JANGULO';
+
+--AHORA TAMBIEN SE DEBE MODIFICAR LAS SIGUIENTES TABLAS, modificacion de puntos
+Select * From csmc_usua_web where usu_web='JANGULO' FOR UPDATE;--COD_PUNT
+Select * From general.camc_usua where usu_web='JANGULO' FOR UPDATE;--PUNT
+*/
+
+/*Select * From ve_cliente where nom_clie like '%GIAMEN%';
+*/

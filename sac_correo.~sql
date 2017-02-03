@@ -1,0 +1,1 @@
+Select * From VD_CLIENTE_CNTC where cod_clie=2235 for update
